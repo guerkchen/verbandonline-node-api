@@ -23,5 +23,11 @@
   "bugs": {
     "url": "https://github.com/guerkchen/verbandonline-node-api/issues"
   },
-  "homepage": "https://github.com/guerkchen/verbandonline-node-api#readme"
+  "homepage": "https://github.com/guerkchen/verbandonline-node-api#readme",
+  "dependencies": {
+    "crypto": "^1.0.1",
+    "request": "^2.88.2",
+    "url": "^0.11.0",
+    "urlencode": "^1.1.0"
+  }
 }

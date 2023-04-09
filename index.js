@@ -15,14 +15,14 @@ exports.setToken = function(usr, pwd){
   token = generate_token(usr, pwd);
 }
 
-exports.request = function(methodenname, parameter){
+exports.request = function(methodenname, parameter, callback){
   if(verbandsUrl == null){
     throw new Error("verbandsURL not set, use setVerbandsUrl(verbandsUrl) first");
   }
   if(token == null){
     throw new Error("token not set, use setToken(username, password) first");
   }
-  return request(verbandsUrl, token, methodenname, parameter);
+  return request(verbandsUrl, token, methodenname, parameter, callback);
 }
 
 const verbandsUrl = null;
@@ -40,11 +40,11 @@ function parameter_to_string(parameter){
   return string;
 }
 
-function request(verbandurl, token, methodenname, parameter){
+function request(verbandurl, token, methodenname, parameter, callback){
   if(!url.endsWith("/")){
     url += "/";
   }
 
   const url = new URL(verbandurl + "?api=" + urlencode(methodenname) + "&token=" + token + parameter_to_string(parameter));
-  return request.get(url, { json: true});
+  return request.get(url, {json: true}, callback);
 }
