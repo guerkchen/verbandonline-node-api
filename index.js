@@ -18,15 +18,13 @@ var logger = winston.createLogger({
 var verbandsUrl = null;
 var token = null;
 
-exports.printMsg = function() {
-  console.log("This is a test message from the verbandonline-node-api package");
-}
-
 exports.setVerbandsUrl = function(_verbandsUrl){
+  logger.verbose("enter setVerbandsUrl(${_verbandsUrl}");
   verbandsUrl = _verbandsUrl;
 }
 
 exports.setToken = function(usr, pwd){
+  logger.verbose("enter setToken(${usr}, ***");
   token = generate_token(usr, pwd);
 }
 
@@ -73,52 +71,64 @@ async function _request(verbandurl, token, methodenname, parameter, callback){
  * @param {callback function(string)} err Diese Funktion wird bei einem internen Fehler (500) oder invaliden Login (403) mit einer Fehlermeldung aufgerufen
  */
 exports.VerifyLoginID = function(usr, pwd, res, err){
+  logger.verbose("enter VerifyLoginID(${usr}, ***");
+
   _request(verbandsUrl, token, 'VerifyLogin', {"user": usr, "password": pwd, "result": "id"}, (request_err, request_res, body) => {
+   
     if(!request_err && body && body.hasOwnProperty("error")){
-      logger.info("[403] fehlerhafter Login von " + usr + " -> " + body.error);
-      err("[403] fehlerhafter Login von " + usr);
+      logger.info("fehlerhafter Username & Passwort im Stammesmanager für " + usr);
+      logger.info(body.error);
+      err("fehlerhafter Username & Passwort im Stammesmanager für " + usr);
+
     } else if(!request_err && body){
+        var id;
         try {
             id = parseInt(body[0]);
-            if(id != NaN && id >= 0){
-                // successful login
-                logger.info("[200] Erfolgreicher Login von " + usr);
-                res(id);
-            }
         } catch (error) {
-            logger.error("[500] invalid response from Stammesmanager for user " + usr);
+            logger.error("ungültige Antwort vom Stammesmanager " + usr);
             logger.error(error);
-            err("[500] interner Servererror");
+            err("ungültige Antwort vom Stammesmanager");
         }
+        if(id && id != NaN && id >= 0){
+          // successful login
+          logger.info("Erfolgreicher Login im Stammesmanager von " + usr);
+          res(id);
+      }
     } else {
-        logger.error("[500] Error login of " + usr + " -> " + request_err);
-        err("[500] interner Servererror");
+        logger.error("unbekannter Fehler beim Stammesmanager Login " + usr);
+        logger.error(request_err);
+        err("unbekannter Fehler beim Stammesmanager Login");
     }
   });
 }
 
 exports.GetMember = function(id, res, err){
+  logger.verbose("enter GetMember(${id}");
+
   _request(verbandsUrl, token, 'GetMember', {"id": id}, (request_err, request_res, body) => {
+    
     if(!request_err && body && body.hasOwnProperty("error")){
-      logger.error("[500] fehlerhafte Anfrage für ID " + id);
+      logger.error("fehlerhafte Anfrage für ID " + id);
       logger.error(body.error);
-      err("[500] fehlerhafte Anfrage für ID " + id);
+      err("fehlerhafte Anfrage für ID " + id);
+
     } else if(!request_err && body){
+        logger.debug("valid response from server");
         try {
             if(body["id"] == id){
               // successful request
-              logger.info("[200] Erfolgreicher Request für die ID " + id);
+              logger.info("Erfolgreicher Request für die ID " + id);
               res(body);
             }
         } catch (error) {
-            logger.error("[500] invalid response from Stammesmanager for ID " + id);
+            logger.error("invalid response from Stammesmanager for ID " + id);
             logger.error(error);
-            err("[500] interner Servererror");
+            err("interner Servererror");
         }
     } else {
-        logger.error("[500] Error für ID " + id);
+        logger.error("Unbekannter Error für ID " + id);
         logger.error(request_err);
-        err("[500] interner Servererror");
+        err("interner Servererror");
     }
   });
 }
