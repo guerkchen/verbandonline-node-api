@@ -1,6 +1,6 @@
 {
   "name": "verbandonline-node-api",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Eine Node-Package, mit dem die API von Verbandonline.org angesprochen werden kann.",
   "main": "index.js",
   "scripts": {
